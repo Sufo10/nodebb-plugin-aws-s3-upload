@@ -3,10 +3,9 @@
 const S3 = require('@aws-sdk/client-s3');
 const uuid = require('uuid').v4;
 const fs = require('fs');
-const request = require('request');
 const path = require('path');
-const im = require('gm').subClass({ imageMagick: true });
 const { promisify } = require('util');
+const sharp = require('sharp');
 
 const winston = require.main.require('winston');
 const nconf = require.main.require('nconf');
@@ -114,27 +113,11 @@ plugin.uploadImage = async (data) => {
     if (!plugin.isExtensionAllowed(image.url, allowed)) {
       throw new Error(`[[error:invalid-file-type, ${allowed.join('&#44; ')}]]`);
     }
-
-    const filename = image.url.split('/').pop();
-
-    const imageDimension =
-      parseInt(meta.config.profileImageDimension, 10) || 128;
-
-    const buf = await new Promise((resolve, reject) => {
-      // Resize image.
-      im(request(image.url), filename)
-        .resize(`${imageDimension}^`, `${imageDimension}^`)
-        .stream((err, stdout) => {
-          if (err) return reject(plugin.createError(err));
-          let buf = Buffer.alloc(0);
-          stdout.on('data', (d) => {
-            buf = Buffer.concat([buf, d]);
-          });
-          stdout.on('end', () => resolve(buf));
-          stdout.on('error', (err) => reject(plugin.createError(err)));
-        });
-    });
-    return await plugin.uploadToS3(filename, buf);
+    const buffer = await plugin.downloadAndResizeImage(
+      image.url,
+      imageDimension
+    );
+    return await plugin.uploadToS3(filename, buffer);
   }
 };
 
@@ -198,6 +181,38 @@ plugin.uploadToS3 = async (filename, buffer) => {
   } catch (err) {
     throw new Error(plugin.createError(err));
   }
+};
+
+plugin.downloadAndResizeImage = async (url, dimension) => {
+  const imageBuffer = await new Promise((resolve, reject) => {
+    https
+      .get(url, (response) => {
+        if (response.statusCode !== 200) {
+          return reject(
+            new Error(`Failed to fetch image. Status: ${response.statusCode}`)
+          );
+        }
+        const chunks = [];
+        response.on('data', (chunk) => chunks.push(chunk));
+        response.on('end', () => resolve(Buffer.concat(chunks)));
+      })
+      .on('error', reject);
+  });
+
+  const type = (await import('file-type')).default.fileTypeFromBuffer(
+    imageBuffer
+  );
+  const format = type?.ext || 'jpeg';
+
+  const resizedBuffer = await sharp(imageBuffer)
+    .resize(dimension, dimension, {
+      fit: sharp.fit.cover,
+      position: sharp.strategy.entropy,
+    })
+    .toFormat(format)
+    .toBuffer();
+
+  return resizedBuffer;
 };
 
 plugin.constructS3 = () => {

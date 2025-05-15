@@ -1,6 +1,6 @@
 {
   "name": "nodebb-plugin-aws-s3-upload",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "license": "MIT",
   "description": "A NodeBB plugin that handles file uploads and stores them in Amazon S3 using aws-sdk v3 and config.json or NodeBB database.",
   "main": "library.js",
@@ -30,9 +30,9 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.810.0",
-    "gm": "^1.25.1",
+    "file-type": "^20.5.0",
     "mime": "^4.0.7",
-    "request": "~2.88.2",
+    "sharp": "^0.34.1",
     "uuid": "^11.1.0"
   }
 }
