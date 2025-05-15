@@ -1,5 +1,7 @@
 {
   "id": "nodebb-plugin-aws-s3-upload",
+  "description": "A NodeBB plugin that handles file uploads and stores them in Amazon S3 using aws-sdk v3 and config.json or NodeBB database.",
+  "url": "https://github.com/Sufo10/nodebb-plugin-aws-s3-upload",
   "library": "./library.js",
   "hooks": [
     { "hook": "static:app.load", "method": "init" },
