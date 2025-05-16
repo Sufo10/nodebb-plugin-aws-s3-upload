@@ -86,7 +86,7 @@ plugin.reloadSettings = async (data) => {
 };
 
 plugin.uploadImage = async (data) => {
-  const { image } = data;
+  const { image, folder } = data;
 
   if (!image) {
     winston.error('invalid image');
@@ -112,7 +112,7 @@ plugin.uploadImage = async (data) => {
     }
 
     const buffer = await readFile(image.path);
-    return await plugin.uploadToS3(image.name, buffer);
+    return await plugin.uploadToS3(image.name, folder, buffer);
   } else {
     if (!plugin.isExtensionAllowed(image.url, allowed)) {
       throw new Error(`[[error:invalid-file-type, ${allowed.join('&#44; ')}]]`);
@@ -121,12 +121,12 @@ plugin.uploadImage = async (data) => {
       image.url,
       imageDimension
     );
-    return await plugin.uploadToS3(filename, buffer);
+    return await plugin.uploadToS3(filename, folder, buffer);
   }
 };
 
 plugin.uploadFile = async (data) => {
-  const { file } = data;
+  const { file, folder } = data;
 
   if (!file) {
     throw new Error('invalid file');
@@ -148,10 +148,10 @@ plugin.uploadFile = async (data) => {
   }
 
   const buffer = await readFile(file.path);
-  return await plugin.uploadToS3(file.name, buffer);
+  return await plugin.uploadToS3(file.name, folder, buffer);
 };
 
-plugin.uploadToS3 = async (filename, buffer) => {
+plugin.uploadToS3 = async (filename, folder, buffer) => {
   let s3Path;
   if (plugin.settings.uploadPath && plugin.settings.uploadPath.length > 0) {
     s3Path = plugin.settings.uploadPath;
@@ -164,7 +164,11 @@ plugin.uploadToS3 = async (filename, buffer) => {
     s3Path = '/';
   }
 
-  const s3KeyPath = s3Path.replace(/^\//, ''); // S3 Key Path should not start with slash.
+  let s3KeyPath = s3Path.replace(/^\//, ''); // S3 Key Path should not start with slash.
+
+  if (folder && folder.length > 0) {
+    s3KeyPath += folder + '/';
+  }
 
   const params = {
     Bucket: plugin.settings.bucket,
