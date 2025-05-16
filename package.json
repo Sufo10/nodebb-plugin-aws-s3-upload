@@ -6,7 +6,7 @@
   "main": "library.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Sufo10/nodebb-plugin-aws-s3-upload.git"
+    "url": "git+https://github.com/Sufo10/nodebb-plugin-aws-s3-upload.git"
   },
   "keywords": [
     "nodebb",
