@@ -31,6 +31,7 @@ const plugin = {
     region: '',
     bucket: '',
     uploadPath: '',
+    host: '',
   },
 };
 
@@ -78,6 +79,9 @@ plugin.reloadSettings = async (data) => {
   }
   if (settings.uploadPath && settings.uploadPath.length) {
     plugin.settings.uploadPath = settings.uploadPath;
+  }
+  if (settings.host && settings.host.length) {
+    plugin.settings.host = settings.host;
   }
 };
 
@@ -174,9 +178,18 @@ plugin.uploadToS3 = async (filename, buffer) => {
     const s3Client = plugin.constructS3();
     await s3Client.send(new S3.PutObjectCommand(params));
 
+    // amazon bucket name as host, if has https enabled, using it by default.
+    let host = `https://${params.Bucket}`;
+    if (plugin.settings.host && plugin.settings.host.length > 0) {
+      host = plugin.settings.host;
+      if (!host.startsWith('http')) {
+        host = `http://${host}`;
+      }
+    }
+
     return {
       name: filename,
-      url: `https://${params.Bucket}/${params.Key}`,
+      url: `${host}/${params.Key}`,
     };
   } catch (err) {
     throw new Error(plugin.createError(err));

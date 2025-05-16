@@ -13,9 +13,16 @@
     			"secretAccessKey": "XXXXXXXXXXXXX",
     			"region": "XXXXXXXXXXXXX",
     			"bucket": "XXXXXXXXXXXXXXXXX",
-    			"uploadPath": "**/**"
+    			"uploadPath": "**/**",
+					"host": "https://example.com"
   			}
 				</code></pre>
+				<p> - Asset host and uploadPath are optional. By default, the URL is <code>http://mybucket/uuid.jpg</code>.
+				<br/> 
+				- Setting an asset host (e.g., <code>cdn.mywebsite.com</code>) changes the URL to <code>http://cdn.mywebsite.com/uuid.jpg</code>.
+				<br/> - Setting an asset uploadPath (e.g., <code>/assets</code>) makes it <code>http://mybucket/assets/uuid.jpg</code>.
+				<br/> - Using both gives <code>http://cdn.mywebsite.com/assets/uuid.jpg</code>. 
+				</p>
 				</li>
 				<li><em>NodeBB Database:</em> Inputting values below will save them in the database used.</li>
 				</ul>
@@ -45,6 +52,10 @@
 				<div class="mb-3">
 					<label for="uploadPath">Upload Path</label>
 					<input id="uploadPath" type="text" name="uploadPath" title="Upload Path" class="form-control input-lg" placeholder="Upload Path">
+				</div>
+				<div class="mb-3">
+					<label for="host">Host</label>
+					<input id="host" type="text" name="host" title="Host" class="form-control input-lg" placeholder="Host">
 				</div>
 			</form>
 		</div>

@@ -1,6 +1,5 @@
 # NodeBB Plugin: AWS S3 Upload ![npm](https://img.shields.io/npm/v/nodebb-plugin-aws-s3-upload?color=blue) ![MIT License](https://img.shields.io/badge/license-MIT-green.svg) ![NodeBB](https://img.shields.io/badge/NodeBB-Plugin-orange)
 
-
 A NodeBB plugin that enables file and image uploads directly to Amazon S3, using AWS SDK v3. Configure via NodeBB Admin UI or `config.json`.
 
 ---
@@ -36,9 +35,17 @@ Add an `s3` object to your NodeBB `config.json`:
   "secretAccessKey": "YOUR_AWS_SECRET_ACCESS_KEY",
   "region": "YOUR_AWS_REGION",
   "bucket": "YOUR_S3_BUCKET_NAME",
-  "uploadPath": "YOUR_UPLOAD_PATH"
+  "uploadPath": "YOUR_UPLOAD_PATH", // optional
+  "host": "YOUR_ASSETS_SERVING_HOST" // optional
 }
 ```
+
+<p>
+- <b>Asset host</b> and <b>uploadPath</b> are optional. By default, the URL is <code>http://mybucket/uuid.jpg</code>.<br/>
+- Setting an asset host (e.g., <code>cdn.mywebsite.com</code>) changes the URL to <code>http://cdn.mywebsite.com/uuid.jpg</code>.<br/>
+- Setting an asset uploadPath (e.g., <code>/assets</code>) makes it <code>http://mybucket/assets/uuid.jpg</code>.<br/>
+- Using both gives <code>http://cdn.mywebsite.com/assets/uuid.jpg</code>.
+</p>
 
 ### 2. Using the Admin UI
 
